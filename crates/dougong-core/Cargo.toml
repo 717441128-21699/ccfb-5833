@@ -1,0 +1,12 @@
+[package]
+name = "dougong-core"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "dougong_core"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }

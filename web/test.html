@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8" /><title>dg-test</title></head>
+<body>
+<canvas id="c" width="900" height="640"></canvas>
+<pre id="result">RUNNING</pre>
+<script type="module">
+import { loadWasm, generateAssembly, generateGlb } from './wasm-loader.js';
+import { buildGpuBuffers } from './model-data.js';
+import { DougongRenderer } from './renderer.js';
+
+const log = [];
+function finish(status, detail) {
+  const el = document.getElementById('result');
+  el.textContent = status + '\n' + log.concat(detail || []).join('\n');
+  document.title = status;
+}
+try {
+  await loadWasm('./dougong_wasm.wasm');
+  log.push('wasm loaded');
+  const r = new DougongRenderer(document.getElementById('c'));
+  await r.init();
+  log.push('renderer init ok, webgpu=' + !!navigator.gpu);
+
+  for (const bs of ['doukou', 'si', 'wu', 'liu', 'qi', 'ba']) {
+    const t0 = performance.now();
+    const asm = generateAssembly({
+      bracketSet: bs, caiGrade: 5, angStyle: 'xia',
+      materialStyle: 'wood', includeInnerJumps: true,
+    });
+    const gpu = buildGpuBuffers(asm);
+    await r.setModel(gpu, 'wood');
+    log.push(`${bs}: ${asm.components.length} comps, ${(performance.now() - t0).toFixed(1)}ms`);
+  }
+  // 彩画 + 上昂 + 半朵组合。
+  const asm2 = generateAssembly({
+    bracketSet: 'qi', caiGrade: 3, angStyle: 'shang',
+    materialStyle: 'caihua', includeInnerJumps: false,
+  });
+  await r.setModel(buildGpuBuffers(asm2), 'caihua');
+  log.push('caihua+shangang+half ok');
+
+  // 动画 uniform 不报错。
+  r.setExplode(0.3); r.setDisassemble(0.6);
+  await new Promise((res) => setTimeout(res, 300));
+
+  const glb = generateGlb({
+    bracketSet: 'wu', caiGrade: 5, angStyle: 'xia',
+    materialStyle: 'wood', includeInnerJumps: true,
+  });
+  log.push('glb export ' + glb.length + ' bytes, magic=' + new TextDecoder().decode(glb.slice(0, 4)));
+
+  // 等两帧确认渲染循环无运行期错误。
+  await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+  finish('PASS', log);
+} catch (e) {
+  log.push('ERROR: ' + (e?.stack || e));
+  finish('FAIL', log);
+}
+</script>
+</body>
+</html>

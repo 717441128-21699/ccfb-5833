@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>参数化斗拱 · 营造法式材分制建模</title>
+<link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <h1>参数化斗拱建模</h1>
+    <p class="sub">《营造法式》材分制 · Rust/WASM + WebGPU</p>
+
+    <section>
+      <h2>铺作参数</h2>
+      <label>铺作类型
+        <select id="bracketSet">
+          <option value="doukou">斗口跳（参照）</option>
+          <option value="si">四铺作（一跳）</option>
+          <option value="wu" selected>五铺作（两跳）</option>
+          <option value="liu">六铺作（三跳）</option>
+          <option value="qi">七铺作（四跳）</option>
+          <option value="ba">八铺作（五跳）</option>
+        </select>
+      </label>
+      <label>材等
+        <select id="caiGrade">
+          <option value="1">一等材（殿阁九至十一间）</option>
+          <option value="2">二等材</option>
+          <option value="3">三等材</option>
+          <option value="4">四等材</option>
+          <option value="5" selected>五等材（常用）</option>
+          <option value="6">六等材</option>
+          <option value="7">七等材（小殿堂）</option>
+          <option value="8">八等材（殿内藻井）</option>
+        </select>
+      </label>
+      <label>昂的形制
+        <select id="angStyle">
+          <option value="xia" selected>下昂（外跳斜下）</option>
+          <option value="shang">上昂（内跳挑斡）</option>
+          <option value="none">卷头造（不用昂）</option>
+        </select>
+      </label>
+      <label>材质
+        <select id="materialStyle">
+          <option value="wood" selected>原木木纹</option>
+          <option value="caihua">宋式彩画（丹粉刷饰）</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="innerJumps" checked /> 生成里跳（室内一侧）</label>
+    </section>
+
+    <section>
+      <h2>视图与拆装</h2>
+      <label>爆炸视图 <span id="explodeVal">0%</span>
+        <input type="range" id="explode" min="0" max="100" value="0" />
+      </label>
+      <label>逐层拆装 <span id="disassembleVal">0%</span>
+        <input type="range" id="disassemble" min="0" max="100" value="0" />
+      </label>
+      <div class="btnrow">
+        <button id="assembleBtn">自动拆装演示</button>
+        <button id="resetCam">复位视角</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>导出</h2>
+      <div class="btnrow">
+        <button id="exportGlb">导出 glTF (.glb)</button>
+      </div>
+      <p class="hint">GLB 通过 Khronos 官方校验，可直接导入 Blender / Windows 3D 查看器。</p>
+    </section>
+
+    <section>
+      <h2>推算说明</h2>
+      <ul id="notes"></ul>
+    </section>
+
+    <section id="stats">
+      <span id="statComponents"></span>
+      <span id="statTriangles"></span>
+      <span id="statRebuild"></span>
+    </section>
+  </aside>
+
+  <main id="viewport">
+    <canvas id="canvas"></canvas>
+    <div id="overlay" class="hidden">
+      <div class="card">
+        <h3>WebGPU 不可用</h3>
+        <p id="overlayMsg"></p>
+      </div>
+    </div>
+    <div id="legend"></div>
+  </main>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

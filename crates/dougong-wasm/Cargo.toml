@@ -1,0 +1,14 @@
+[package]
+name = "dougong-wasm"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+dougong-core = { path = "../dougong-core" }
+serde_json = { workspace = true }
+
+# release 的 opt-level / LTO / panic 策略统一在 workspace 根 Cargo.toml 配置；
+# workspace 内子包的 [profile.*] 会被 cargo 忽略。
